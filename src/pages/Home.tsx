@@ -3,7 +3,7 @@ import CardData from "../components/Cards/CardData"
 import TextInput from "../components/Inputs/TextInput"
 import Modal from "../components/Modal"
 import { useEffect, useState } from "react"
-import { generateUniqueId, getCurrentDateTime } from "../function"
+import { cashFormated, generateUniqueId, getCurrentDateTime } from "../function"
 
 const Home = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -13,6 +13,7 @@ const Home = () => {
   const [textHeadModal, setTextHeadModal] = useState<string>('')
 
   const [allDataCash, setAllDataCash] = useState([])
+  const [totalAmountCash, setTotalAmountCash] = useState<number>(0)
 
   const openModal = (type: 'income' | 'spending', text: string) => {
     setTypeCash(type)
@@ -61,6 +62,17 @@ const Home = () => {
     if (data) {
       const dataCash = JSON.parse(data)
       setAllDataCash(dataCash)
+
+      const total = dataCash.reduce((acc: number, item: dataCashType) => {
+        if (item.type === "spending") {
+          return acc - item.amount;
+        } else if (item.type === "income") {
+          return acc + item.amount;
+        }
+        return acc;
+      }, 0);
+
+      setTotalAmountCash(total)
     }
   }
 
@@ -83,7 +95,7 @@ const Home = () => {
         <p className="text-sm">Uangmu Sekarang</p>
         <div className="text-2xl flex flex-row items-center mt-1">
           <i className="fa-solid fa-wallet"></i>
-          <p className="ms-2 font-bold">Rp. 250,000</p>
+          <p className="ms-2 font-bold">Rp. {cashFormated(totalAmountCash)}</p>
         </div>
       </div>
 
