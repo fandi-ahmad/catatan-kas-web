@@ -1,22 +1,84 @@
 import BaseButton from "../components/Button/BaseButton"
 import CardData from "../components/Cards/CardData"
+import TextInput from "../components/Inputs/TextInput"
 import Modal from "../components/Modal"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { generateUniqueId, getCurrentDateTime } from "../function"
 
 const Home = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [noteCash, setNoteCash] = useState<string>('')
+  const [amountCash, setAmountCash] = useState<string>('')
+  const [typeCash, setTypeCash] = useState<'income' | 'spending' | ''>('')
+  const [textHeadModal, setTextHeadModal] = useState<string>('')
 
-  const openModal = () => {
+  const [allDataCash, setAllDataCash] = useState([])
+
+  const openModal = (type: 'income' | 'spending', text: string) => {
+    setTypeCash(type)
+    setTextHeadModal(text)
     setModalOpen(true);
   };
 
   const closeModal = () => {
     setModalOpen(false);
+    setNoteCash('')
+    setAmountCash('')
+    setTypeCash('')
   };
 
+  const handleSaveButton = () => {
+    const unformattedAmount = amountCash.replace(/,/g, '');
+
+    const dataToSave = {
+      id: generateUniqueId(),
+      notes: noteCash,
+      amount: Number(unformattedAmount),
+      type: typeCash,
+      created_at: getCurrentDateTime()
+    }
+    
+    const data = localStorage.getItem('dataCash')
+
+    if (data) {
+      // sudah ada data, ambil dan tambahkan data yang baru
+      let dataCash = JSON.parse(data)
+      dataCash.unshift(dataToSave)
+      localStorage.setItem('dataCash', JSON.stringify(dataCash))
+    } else {
+      // belum ada data, tambah data untuk pertama kali
+      let data = []
+      data.unshift(dataToSave)
+      localStorage.setItem('dataCash', JSON.stringify(data))
+    }
+
+    closeModal()
+    getDataCash()
+  }
+
+  const getDataCash = () => {
+    const data = localStorage.getItem('dataCash')
+    if (data) {
+      const dataCash = JSON.parse(data)
+      setAllDataCash(dataCash)
+    }
+  }
+
+  useEffect(() => {
+    getDataCash()
+  }, [])
+
+  interface dataCashType {
+    id: string
+    notes: string
+    amount: number
+    type: 'income' | 'spending',
+    created_at: string
+  }
+
   return (
-    <div className="px-4 sm:px-6">
-      
+    <div className="px-4 sm:px-6 pb-4">
+
       <div className="bg-blue-500 rounded-md px-6 py-8 text-white">
         <p className="text-sm">Uangmu Sekarang</p>
         <div className="text-2xl flex flex-row items-center mt-1">
@@ -26,26 +88,39 @@ const Home = () => {
       </div>
 
       <div className="mt-4">
-        <BaseButton color="green" text="Pemasukan" className="me-2" onClick={openModal} />
-        <BaseButton color="red" text="Pengeluaran" />
+        <BaseButton color="green" text="Pemasukan" icon="fa-plus" className="me-2" onClick={() => openModal('income', 'pemasukan')} />
+        <BaseButton color="red" text="Pengeluaran" icon="fa-plus" onClick={() => openModal('spending', 'pengeluaran')} />
       </div>
 
       <div className="mt-4">
-        <CardData note="saldo awal" amount="300,000" type_cash="income" created_at="11:43, 13/08/2024" />
-        <CardData note="beli bahan dapur" amount="50,000" type_cash="spending" created_at="12:03, 13/08/2024" />
+        {allDataCash ? allDataCash.map((data: dataCashType) => (
+          <CardData
+            key={data.id}
+            note={data.notes}
+            amount={data.amount}
+            type_cash={data.type}
+            created_at={data.created_at}
+          />
+        )): null}
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <h2 className="text-2xl font-bold mb-4">Ini Modalnya!</h2>
-        <p>Konten modal bisa di sini.</p>
-        <button
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-          onClick={closeModal}
-        >
-          Tutup Modal
-        </button>
+        <h2 className="text-xl font-semibold mr-6 mb-4">Masukan jumlah {textHeadModal}</h2>
+        <TextInput label="Catatan" placeholder="Catatan" value={noteCash} onChange={(e) => setNoteCash(e.target.value)} />
+        <TextInput label="Jumlah" placeholder="0" icon="Rp" value={amountCash}
+          onChange={(e) => {
+            let formattedAmount = e.target.value.replace(/[^0-9]/g, '');
+            if (formattedAmount === '0') formattedAmount = '';
+            setAmountCash(formattedAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+          }}
+        />
+
+        <div className="flex justify-between mt-6">
+          <BaseButton color="slate" text="Kembali" onClick={closeModal} />
+          <BaseButton color="green" text="Simpan" onClick={handleSaveButton} />
+        </div>
       </Modal>
-      
+
     </div>
   )
 }
