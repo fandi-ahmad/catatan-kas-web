@@ -7,6 +7,11 @@ import { cashFormated, generateUniqueId, getCurrentDateTime } from "../function"
 import getDataCashByType from "../function/dataCash/getDataCashByType"
 import getDataCash from "../function/dataCash/getDataCash"
 import { dataCashType } from "../interface"
+import getCurrentYear from "../function/date/getCurrentYear"
+import getCurrentMonth from "../function/date/getCurrentMonth"
+import ButtonOption from "../components/Button/ButtonOption"
+import getDataCashByMonth from "../function/dataCash/getDataCashByMonth"
+import getDataCashByMonthType from "../function/dataCash/getDataCashByMonthType"
 
 const Home = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -22,6 +27,8 @@ const Home = () => {
   // filter
   const [filterTypeCash, setFilterTypeCash] = useState<'income' | 'spending' | ''>('')
   const [filterTotalAmountCash, setFilterTotalAmountCash] = useState<number>(0)
+  const [filterYear, setFilterYear] = useState<number>(0)
+  const [filterMonth, setFilterMonth] = useState<number>(0)
 
   const openModal = (type: 'income' | 'spending', text: string) => {
     setTypeCash(type)
@@ -35,6 +42,19 @@ const Home = () => {
     setAmountCash('')
     setTypeCash('')
   };
+
+  const openModalMonth = () => {
+    setModalMonthOpen(true)
+  }
+
+  const closeModalMonth = () => {
+    setModalMonthOpen(false)
+  }
+
+  const currentTime = () => {
+    setFilterMonth(getCurrentMonth())
+    setFilterYear(getCurrentYear())
+  }
 
   const handleSaveButton = () => {
     const unformattedAmount = amountCash.replace(/,/g, '');
@@ -65,6 +85,37 @@ const Home = () => {
     getAllData()
   }
 
+  const getAllDataByCurrentMonth = () => {
+    const currentMonth = getCurrentMonth()
+    const currentYear = getCurrentYear()
+
+    const dataByMonth = getDataCashByMonth(currentMonth, currentYear)
+    if (dataByMonth) {
+      setAllDataCash(dataByMonth.data)
+      setTotalAmountCash(dataByMonth.totalAmountCash)
+    }
+  }
+
+  const handleFilterByTypeButton = (type: 'income' | 'spending') => {
+    if (filterTypeCash == type) {
+      setFilterTypeCash('')
+      filterMonth ? saveDataByMonth() : getAllData()
+    } else {
+      setFilterTypeCash(type)
+      filterMonth ? saveDataByMonthType(type) : saveDataByType(type)
+    }
+  }
+
+  const handleFilterByMonthButton = () => {
+    filterMonth && filterTypeCash ? saveDataByMonthType() : null
+    filterMonth && !filterTypeCash ? saveDataByMonth() : null
+    !filterMonth && filterTypeCash ? saveDataByType() : null
+    !filterMonth && !filterTypeCash ? getAllData() : null
+    closeModalMonth()
+  }
+
+  // ====== part function for get data start ======
+
   const getAllData = () => {
     const dataToSave = getDataCash()
     if (dataToSave) {
@@ -73,23 +124,35 @@ const Home = () => {
     }
   }
 
-  const filterDataByTypeCash = (type: 'income' | 'spending' | '') => {
-    if (filterTypeCash == type) {
-      setFilterTypeCash('')
-      getAllData()
-      setFilterTotalAmountCash(0)
-    } else {
-      setFilterTypeCash(type)
-      const dataToSave = getDataCashByType(type)
-      if (dataToSave) {
-        setAllDataCash(dataToSave.data)
-        setFilterTotalAmountCash(dataToSave.filterTotalAmountCash)
-      }
+  const saveDataByMonthType = (type?: 'income' | 'spending') => {
+    const dataToSave = getDataCashByMonthType(filterMonth, filterYear, type || filterTypeCash)
+    if (dataToSave) {
+      setAllDataCash(dataToSave.data)
+      setFilterTotalAmountCash(dataToSave.filterTotalAmountCash)
     }
   }
 
+  const saveDataByMonth = () => {
+    const dataToSave = getDataCashByMonth(filterMonth, filterYear)
+    if (dataToSave) {
+      setAllDataCash(dataToSave.data)
+      setFilterTotalAmountCash(0)
+    }
+  }
+
+  const saveDataByType = (type?: 'income' | 'spending') => {
+    const dataToSave = getDataCashByType(type || filterTypeCash)
+    if (dataToSave) {
+      setAllDataCash(dataToSave.data)
+      setFilterTotalAmountCash(dataToSave.filterTotalAmountCash)      
+    }
+  }
+
+  // ====== part function for get data end ======
+
   useEffect(() => {
-    getAllData()
+    currentTime()
+    getAllDataByCurrentMonth()
   }, [])
 
   return (
@@ -120,17 +183,17 @@ const Home = () => {
         <div className="bg-slate-300 dark:bg-slate-600 p-2 rounded-md rounded-tr-none -mt-3.5">
           <p>Filter berdasarkan:</p>
           <div className="mt-2 flex flex-row items-center text-sm">
-            <button onClick={() => filterDataByTypeCash('income')} className={`${filterTypeCash === 'income' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500 me-2`}>
+            <button onClick={() => handleFilterByTypeButton('income')} className={`${filterTypeCash === 'income' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500 me-2`}>
               Pemasukan
             </button>
-            <button onClick={() => filterDataByTypeCash('spending')} className={`${filterTypeCash === 'spending' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500 me-3`}>
+            <button onClick={() => handleFilterByTypeButton('spending')} className={`${filterTypeCash === 'spending' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500 me-3`}>
               Pengeluaran
             </button>
 
             <div className="w-0.5 h-6 bg-slate-500 dark:bg-slate-300 rounded-full me-3"></div>
 
-            <button className="py-1 px-3 rounded-full border-2 border-blue-500">
-              <span>Pilih bulan</span>
+            <button onClick={openModalMonth} className="py-1 px-3 rounded-full border-2 border-blue-500">
+              <span>{filterMonth ? filterMonth+'/'+filterYear : 'Pilih bulan'}</span>
               <i className="fa-solid fa-calendar ms-2"></i>
             </button>
           </div>
@@ -169,6 +232,38 @@ const Home = () => {
         <div className="flex justify-between mt-6">
           <BaseButton color="slate" text="Kembali" onClick={closeModal} />
           <BaseButton color="green" text="Simpan" onClick={handleSaveButton} />
+        </div>
+      </Modal>
+
+      <Modal isOpen={isModalMonthOpen} onClose={closeModalMonth}>
+        <div className="mx-20 text-lg">
+          <button onClick={() => setFilterYear(filterYear - 1)}>
+            <i className="fa-solid fa-angle-left"></i>
+          </button>
+          <span className="mx-3">{filterYear}</span>
+          <button onClick={() => setFilterYear(filterYear + 1)}>
+            <i className="fa-solid fa-angle-right"></i>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mt-4 text-sm">
+          <ButtonOption text="Jan" isActive={filterMonth === 1 ? true : false} onClick={() => filterMonth === 1 ? setFilterMonth(0) : setFilterMonth(1)} />
+          <ButtonOption text="Feb" isActive={filterMonth === 2 ? true : false} onClick={() => filterMonth === 2 ? setFilterMonth(0) : setFilterMonth(2)} />
+          <ButtonOption text="Mar" isActive={filterMonth === 3 ? true : false} onClick={() => filterMonth === 3 ? setFilterMonth(0) : setFilterMonth(3)} />
+          <ButtonOption text="Apr" isActive={filterMonth === 4 ? true : false} onClick={() => filterMonth === 4 ? setFilterMonth(0) : setFilterMonth(4)} />
+          <ButtonOption text="Mei" isActive={filterMonth === 5 ? true : false} onClick={() => filterMonth === 5 ? setFilterMonth(0) : setFilterMonth(5)} />
+          <ButtonOption text="Jun" isActive={filterMonth === 6 ? true : false} onClick={() => filterMonth === 6 ? setFilterMonth(0) : setFilterMonth(6)} />
+          <ButtonOption text="Jul" isActive={filterMonth === 7 ? true : false} onClick={() => filterMonth === 7 ? setFilterMonth(0) : setFilterMonth(7)} />
+          <ButtonOption text="Agu" isActive={filterMonth === 8 ? true : false} onClick={() => filterMonth === 8 ? setFilterMonth(0) : setFilterMonth(8)} />
+          <ButtonOption text="Sep" isActive={filterMonth === 9 ? true : false} onClick={() => filterMonth === 9 ? setFilterMonth(0) : setFilterMonth(9)} />
+          <ButtonOption text="Okt" isActive={filterMonth === 10 ? true : false} onClick={() => filterMonth === 10 ? setFilterMonth(0) : setFilterMonth(10)} />
+          <ButtonOption text="Nov" isActive={filterMonth === 11 ? true : false} onClick={() => filterMonth === 11 ? setFilterMonth(0) : setFilterMonth(11)} />
+          <ButtonOption text="Des" isActive={filterMonth === 12 ? true : false} onClick={() => filterMonth === 12 ? setFilterMonth(0) : setFilterMonth(12)} />
+        </div>
+
+        <div className="flex justify-between mt-8 text-sm">
+          <BaseButton color="slate" text="Kembali" onClick={closeModalMonth} />
+          <BaseButton color="green" text="Sesuaikan" onClick={handleFilterByMonthButton} />
         </div>
       </Modal>
 
