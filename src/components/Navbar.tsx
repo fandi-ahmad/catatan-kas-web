@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const Navbar = () => {
   const [iconTheme, setIconTheme] = useState('fa-sun')
@@ -12,16 +12,29 @@ const Navbar = () => {
         elementClass?.remove('light')
         elementClass?.add('dark')
         setIconTheme('fa-moon')
+        localStorage.setItem('theme', 'dark')
       } else {
         elementClass?.remove('dark')
         elementClass?.add('light')
         setIconTheme('fa-sun')
+        localStorage.setItem('theme', 'light')
       }
     } else {
       elementClass?.add('dark')
       setIconTheme('fa-moon')
+      localStorage.setItem('theme', 'dark')
     }
   }
+
+  useEffect(() => {
+    const theme = localStorage.getItem('theme')
+    if (theme) {
+      const elementHtml = document.querySelector('html')
+      const elementClass = elementHtml?.classList
+      elementClass?.add(theme)
+      theme == 'dark' ? setIconTheme('fa-moon') : setIconTheme('fa-sun')
+    }
+  }, [])
 
   return (
     <header className="sticky top-0 z-[29] w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
