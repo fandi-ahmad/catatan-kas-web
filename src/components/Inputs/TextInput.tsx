@@ -7,14 +7,13 @@ interface InputProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   icon?: string
+  isError?: boolean
 }
 
-const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, icon }) => {
+const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, icon, isError }) => {
   return (
     <div className="mb-4">
-      <label className="block mb-1">
-        {label}
-      </label>
+      <label className="block mb-1">{label}</label>
 
       <div className='flex flex-row items-stretch '>
         {icon ?
@@ -27,7 +26,7 @@ const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onCh
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className={`${icon ? 'rounded-tr-sm rounded-br-sm' : 'rounded-sm'} border w-full py-2 px-3 text-gray-700 leading-tight border-gray-400 focus:border-gray-500 outline-none`}
+          className={`${icon ? 'rounded-tr-sm rounded-br-sm' : 'rounded-sm'} ${isError ? 'border-red-400' : 'border-gray-400 focus:border-gray-500'} border w-full py-2 px-3 text-gray-700 leading-tight outline-none`}
         />
       </div>
     </div>
