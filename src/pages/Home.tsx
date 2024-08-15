@@ -4,9 +4,13 @@ import TextInput from "../components/Inputs/TextInput"
 import Modal from "../components/Modal"
 import { useEffect, useState } from "react"
 import { cashFormated, generateUniqueId, getCurrentDateTime } from "../function"
+import getDataCashByType from "../function/dataCash/getDataCashByType"
+import getDataCash from "../function/dataCash/getDataCash"
+import { dataCashType } from "../interface"
 
 const Home = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [isModalMonthOpen, setModalMonthOpen] = useState<boolean>(false);
   const [noteCash, setNoteCash] = useState<string>('')
   const [amountCash, setAmountCash] = useState<string>('')
   const [typeCash, setTypeCash] = useState<'income' | 'spending' | ''>('')
@@ -58,60 +62,35 @@ const Home = () => {
     }
 
     closeModal()
-    getDataCash()
+    getAllData()
   }
 
-  const getDataCash = () => {
-    const data = localStorage.getItem('dataCash')
-    if (data) {
-      const dataCash = JSON.parse(data)
-      setAllDataCash(dataCash)
-
-      const total = dataCash.reduce((acc: number, item: dataCashType) => {
-        if (item.type === "spending") {
-          return acc - item.amount;
-        } else if (item.type === "income") {
-          return acc + item.amount;
-        }
-        return acc;
-      }, 0);
-
-      setTotalAmountCash(total)
+  const getAllData = () => {
+    const dataToSave = getDataCash()
+    if (dataToSave) {
+      setAllDataCash(dataToSave.data)
+      setTotalAmountCash(dataToSave.totalAmountCash)
     }
   }
 
   const filterDataByTypeCash = (type: 'income' | 'spending' | '') => {
     if (filterTypeCash == type) {
       setFilterTypeCash('')
-      getDataCash()
+      getAllData()
       setFilterTotalAmountCash(0)
     } else {
       setFilterTypeCash(type)
-      const data = localStorage.getItem('dataCash')
-      if (data) {
-        const dataCash = JSON.parse(data)
-        
-        const filteredData = type ? dataCash.filter((item: dataCashType) => item.type === type) : dataCash;
-        const totalAmount = type ? filteredData.reduce((acc: number, item: dataCashType) => acc + item.amount, 0) : 0;
-  
-        setAllDataCash(filteredData)
-        setFilterTotalAmountCash(totalAmount)
+      const dataToSave = getDataCashByType(type)
+      if (dataToSave) {
+        setAllDataCash(dataToSave.data)
+        setFilterTotalAmountCash(dataToSave.filterTotalAmountCash)
       }
     }
-
   }
 
   useEffect(() => {
-    getDataCash()
+    getAllData()
   }, [])
-
-  interface dataCashType {
-    id: string
-    notes: string
-    amount: number
-    type: 'income' | 'spending',
-    created_at: string
-  }
 
   return (
     <div className="px-4 sm:px-6 pb-4">
@@ -140,19 +119,27 @@ const Home = () => {
         <div className="w-6 h-6 bg-slate-300 dark:bg-slate-600 ms-auto rotate-45 rounded-md me-0.5"></div>
         <div className="bg-slate-300 dark:bg-slate-600 p-2 rounded-md rounded-tr-none -mt-3.5">
           <p>Filter berdasarkan:</p>
-          <div className="mt-2">
+          <div className="mt-2 flex flex-row items-center text-sm">
             <button onClick={() => filterDataByTypeCash('income')} className={`${filterTypeCash === 'income' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500 me-2`}>
               Pemasukan
             </button>
-            <button onClick={() => filterDataByTypeCash('spending')} className={`${filterTypeCash === 'spending' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500`}>
+            <button onClick={() => filterDataByTypeCash('spending')} className={`${filterTypeCash === 'spending' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500 me-3`}>
               Pengeluaran
+            </button>
+
+            <div className="w-0.5 h-6 bg-slate-500 dark:bg-slate-300 rounded-full me-3"></div>
+
+            <button className="py-1 px-3 rounded-full border-2 border-blue-500">
+              <span>Pilih bulan</span>
+              <i className="fa-solid fa-calendar ms-2"></i>
             </button>
           </div>
 
+
           <div className="mt-2">
             <p className="ms-2 text-2xl font-bold">Rp. {cashFormated(filterTotalAmountCash)}</p>
-
           </div>
+          
         </div>
       </div>
 
