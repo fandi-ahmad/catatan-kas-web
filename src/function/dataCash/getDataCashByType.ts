@@ -1,4 +1,5 @@
 import { dataCashType, dataCashFilterType } from "../../interface"
+import getTotalAmountCash from "./components/getTotalAmountCash"
 
 const getDataCashByType = (type: 'income' | 'spending' | '') => {
   const data = localStorage.getItem('dataCash')
@@ -7,10 +8,11 @@ const getDataCashByType = (type: 'income' | 'spending' | '') => {
     
     const filteredData = type ? dataCash.filter((item: dataCashType) => item.type === type) : dataCash;
     const totalAmount = type ? filteredData.reduce((acc: number, item: dataCashType) => acc + item.amount, 0) : 0;
+    const total = getTotalAmountCash(dataCash)
 
     const dataToSave: dataCashFilterType = {
       data: filteredData,
-      totalAmountCash: 0,
+      totalAmountCash: total,
       filterTotalAmountCash: totalAmount
     }
 
