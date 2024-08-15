@@ -15,6 +15,10 @@ const Home = () => {
   const [allDataCash, setAllDataCash] = useState([])
   const [totalAmountCash, setTotalAmountCash] = useState<number>(0)
 
+  // filter
+  const [filterTypeCash, setFilterTypeCash] = useState<'income' | 'spending' | ''>('')
+  const [filterTotalAmountCash, setFilterTotalAmountCash] = useState<number>(0)
+
   const openModal = (type: 'income' | 'spending', text: string) => {
     setTypeCash(type)
     setTextHeadModal(text)
@@ -76,6 +80,27 @@ const Home = () => {
     }
   }
 
+  const filterDataByTypeCash = (type: 'income' | 'spending' | '') => {
+    if (filterTypeCash == type) {
+      setFilterTypeCash('')
+      getDataCash()
+      setFilterTotalAmountCash(0)
+    } else {
+      setFilterTypeCash(type)
+      const data = localStorage.getItem('dataCash')
+      if (data) {
+        const dataCash = JSON.parse(data)
+        
+        const filteredData = type ? dataCash.filter((item: dataCashType) => item.type === type) : dataCash;
+        const totalAmount = type ? filteredData.reduce((acc: number, item: dataCashType) => acc + item.amount, 0) : 0;
+  
+        setAllDataCash(filteredData)
+        setFilterTotalAmountCash(totalAmount)
+      }
+    }
+
+  }
+
   useEffect(() => {
     getDataCash()
   }, [])
@@ -99,9 +124,36 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="mt-4">
-        <BaseButton color="green" text="Pemasukan" icon="fa-plus" className="me-2" onClick={() => openModal('income', 'pemasukan')} />
-        <BaseButton color="red" text="Pengeluaran" icon="fa-plus" onClick={() => openModal('spending', 'pengeluaran')} />
+      <div className="mt-4 flex justify-between items-end">
+        <div>
+          <BaseButton color="green" text="Pemasukan" icon="fa-plus" className="me-2" onClick={() => openModal('income', 'pemasukan')} />
+          <BaseButton color="red" text="Pengeluaran" icon="fa-plus" onClick={() => openModal('spending', 'pengeluaran')} />
+        </div>
+
+        <button className="bg-slate-300 hover:bg-slate-200 dark:bg-slate-600 dark:hover:bg-slate-500 duration-150 rounded-md py-1 px-2">
+          <span>Filter</span>
+          <i className="fa-solid fa-filter ms-2"></i>
+        </button>
+      </div>
+
+      <div className="mt-2">
+        <div className="w-6 h-6 bg-slate-300 dark:bg-slate-600 ms-auto rotate-45 rounded-md me-0.5"></div>
+        <div className="bg-slate-300 dark:bg-slate-600 p-2 rounded-md rounded-tr-none -mt-3.5">
+          <p>Filter berdasarkan:</p>
+          <div className="mt-2">
+            <button onClick={() => filterDataByTypeCash('income')} className={`${filterTypeCash === 'income' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500 me-2`}>
+              Pemasukan
+            </button>
+            <button onClick={() => filterDataByTypeCash('spending')} className={`${filterTypeCash === 'spending' ? 'bg-blue-500 text-white' : ''} py-1 px-3 rounded-full border-2 border-blue-500`}>
+              Pengeluaran
+            </button>
+          </div>
+
+          <div className="mt-2">
+            <p className="ms-2 text-2xl font-bold">Rp. {cashFormated(filterTotalAmountCash)}</p>
+
+          </div>
+        </div>
       </div>
 
       <div className="mt-4">
