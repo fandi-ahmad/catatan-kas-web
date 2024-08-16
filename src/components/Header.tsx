@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
+import { useGlobalState } from "../hook/useGlobalState"
 
 const Header = () => {
   const [iconTheme, setIconTheme] = useState('fa-sun')
+  const [isOpenSidebar, setIsOpenSidebar] = useGlobalState('isOpenSidebar')
 
   const toggleTheme = () => {
     const elementHtml = document.querySelector('html')
@@ -38,9 +40,12 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-[29] w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
-      <div className="flex h-10 sm:h-14 max-w-screen-2xl items-center">
-        <div className="mr-4 md:flex">
-          <a className="flex items-center font-bold text-sm sm:text-base">
+      <div className="flex h-12 sm:h-14 max-w-screen-2xl items-center">
+        <div className="mr-4 flex items-center">
+          <button className="text-lg" onClick={() => setIsOpenSidebar(!isOpenSidebar)}>
+            <i className="fa-solid fa-bars"></i>
+          </button>
+          <a className="flex items-center font-bold text-sm sm:text-base ms-4">
             Catatan Kas
           </a>
         </div>
