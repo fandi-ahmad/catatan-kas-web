@@ -3,6 +3,7 @@ import { useGlobalState } from "../hook/useGlobalState";
 import Modal from "./Modal";
 import BaseButton from "./Button/BaseButton";
 import SidebarOption from "./Options/SidebarOption";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const [isOpenSidebar, setIsOpenSidebar] = useGlobalState('isOpenSidebar')
@@ -17,6 +18,14 @@ const Sidebar = () => {
     window.location.reload()
   }
 
+  const navigate = useNavigate()
+  const pathname = window.location.pathname
+
+  const toPage = (route:string) => {
+    navigate(route)
+    setIsOpenSidebar(false)
+  }
+
   return (
     <>
       <div className={`${isOpenSidebar ? "translate-x-0" : "-translate-x-full"} fixed z-[30] top-0 left-0 h-full w-64 bg-white dark:bg-slate-800 p-4 transform transition-transform`}>
@@ -27,8 +36,20 @@ const Sidebar = () => {
         </div>
 
         <ul>
-          <SidebarOption icon="fa-house" text="Utama" isActive={true} />
-          <SidebarOption icon="fa-info-circle" text="Tentang" />
+          <SidebarOption
+            icon="fa-house"
+            text="Utama"
+            onClick={() => toPage('/')}
+            isActive={pathname == '/' ? true : false}
+          />
+          
+          <SidebarOption
+            icon="fa-info-circle"
+            text="Tentang"
+            onClick={() => toPage('/about')}
+            isActive={pathname == '/about' ? true : false}
+          />
+          
           <hr className="my-4" />
           <SidebarOption icon="fa-file-export" text="Ekspor data" />
           <SidebarOption icon="fa-trash" text="Hapus semua data" onClick={toggleDelete} />
