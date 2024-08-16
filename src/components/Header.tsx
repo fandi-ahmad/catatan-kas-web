@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-const Navbar = () => {
+const Header = () => {
   const [iconTheme, setIconTheme] = useState('fa-sun')
 
   const toggleTheme = () => {
@@ -57,4 +57,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Header
