@@ -6,11 +6,12 @@ interface InputProps {
   placeholder?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  icon?: string
+  icon?: string | React.ReactNode
   isError?: boolean
+  inputMode?: 'text' | 'numeric' | 'decimal' | 'email' | 'tel'
 }
 
-const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, icon, isError }) => {
+const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, icon, isError, inputMode }) => {
   return (
     <div className="mb-4">
       <label className="block mb-1">{label}</label>
@@ -26,7 +27,8 @@ const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onCh
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className={`${icon ? 'rounded-tr-sm rounded-br-sm' : 'rounded-sm'} ${isError ? 'border-red-400' : 'border-gray-400 focus:border-gray-500'} border w-full py-2 px-3 text-gray-700 leading-tight outline-none`}
+          inputMode={inputMode}
+          className={`${icon ? 'rounded-tr-sm rounded-br-sm' : 'rounded-sm'} ${isError ? 'border-red-400 border-2' : 'border-gray-400 focus:border-gray-500 border'} w-full py-2 px-3 text-gray-700 leading-tight outline-none`}
         />
       </div>
     </div>

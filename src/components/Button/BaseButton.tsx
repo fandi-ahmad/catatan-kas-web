@@ -5,6 +5,7 @@ interface buttonProps {
   className?: string
   onClick?: () => void;
   icon?: string
+  textSize?: string
 }
 
 const BaseButton = (props: buttonProps) => {
@@ -21,7 +22,7 @@ const BaseButton = (props: buttonProps) => {
   }
 
   return (
-    <button onClick={props.onClick} className={`${btnColor} duration-200 text-white px-3 py-1 rounded-md ${props.className}`}>
+    <button onClick={props.onClick} className={`${btnColor} ${props.textSize || 'text-base'} duration-200 text-white px-2 py-1 rounded-md ${props.className}`}>
       {props.icon ? <i className={`fa-solid me-1.5 ${props.icon}`}></i> : null}
       <span>{props.text}</span>
     </button>

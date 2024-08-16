@@ -6,6 +6,8 @@ interface cardDataProps {
   amount: number
   created_at: string
   type_cash: 'income' | 'spending'
+  handleEdit?: () => void
+  handleDelete?: () => void
 }
 
 const CardData = (props: cardDataProps) => {
@@ -54,11 +56,11 @@ const CardData = (props: cardDataProps) => {
       {isOpen && (
         <div className="absolute right-7 -mt-2 w-32 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md shadow-lg z-10">
           <ul className=" text-sm">
-            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer">
+            <li onClick={props.handleEdit} className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer">
               <i className="fa-solid fa-pen-to-square w-6"></i>
               <span>Edit</span>
             </li>
-            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer">
+            <li onClick={props.handleDelete} className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer">
               <i className="fa-solid fa-trash w-6"></i>
               <span>Hapus</span>
             </li>

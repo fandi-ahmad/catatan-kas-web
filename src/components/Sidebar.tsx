@@ -28,7 +28,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className={`${isOpenSidebar ? "translate-x-0" : "-translate-x-full"} fixed z-[30] top-0 left-0 h-full w-64 bg-white dark:bg-slate-800 p-4 transform transition-transform`}>
+      <div className={`${isOpenSidebar ? "translate-x-0" : "-translate-x-full"} fixed z-[32] top-0 left-0 h-full w-64 bg-white dark:bg-slate-800 p-4 transform transition-transform`}>
         <div className="flex justify-end mb-4">
           <button onClick={() => setIsOpenSidebar(!isOpenSidebar)} className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-500 text-lg">
             <i className="fa-solid fa-xmark"></i>
