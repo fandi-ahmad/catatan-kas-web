@@ -8,7 +8,7 @@ import Modal from "../components/Modal"
 import { cashFormated, generateUniqueId, limitText } from "../function"
 import { getDataCash, getDataCashByMonth, getDataCashByMonthType, getDataCashByType } from "../function/dataCash/read"
 import { CreateDataCash, DeleteDataCash, UpdateDataCash } from "../function/dataCash/crud"
-import { getCurrentDate, getCurrentMonth, getCurrentYear } from "../function/date"
+import { formatDate, getCurrentDate, getCurrentMonth, getCurrentYear } from "../function/date"
 import { dataCashType } from "../interface"
 
 const Home = () => {
@@ -69,11 +69,6 @@ const Home = () => {
     setFilterMonth(getCurrentMonth())
     setFilterYear(getCurrentYear())
   }
-
-  const formatDate = (date: string) => {
-    const [year, month, day] = date.split('-');
-    return `${day}/${month}/${year}`;
-  };
 
   const getAllDataByCurrentMonth = () => {
     const currentMonth = getCurrentMonth()
