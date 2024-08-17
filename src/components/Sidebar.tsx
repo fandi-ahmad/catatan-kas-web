@@ -4,6 +4,7 @@ import Modal from "./Modal";
 import BaseButton from "./Button/BaseButton";
 import SidebarOption from "./Options/SidebarOption";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from 'xlsx';
 
 const Sidebar = () => {
   const [isOpenSidebar, setIsOpenSidebar] = useGlobalState('isOpenSidebar')
@@ -24,6 +25,23 @@ const Sidebar = () => {
   const toPage = (route:string) => {
     navigate(route)
     setIsOpenSidebar(false)
+  }
+
+  const exportToExcel = () => {
+    const data = localStorage.getItem('dataCash')
+    if (data) {
+      const dataCash = JSON.parse(data)
+    
+      // Buat worksheet dari JSON data
+      const worksheet = XLSX.utils.json_to_sheet(dataCash);
+    
+      // Buat workbook dan tambahkan worksheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    
+      // Buat file Excel dan trigger download
+      XLSX.writeFile(workbook, 'data.xlsx');
+    }
   }
 
   return (
@@ -51,7 +69,7 @@ const Sidebar = () => {
           />
           
           <hr className="my-4" />
-          <SidebarOption icon="fa-file-export" text="Ekspor data" />
+          <SidebarOption icon="fa-file-export" text="Ekspor data" onClick={exportToExcel} />
           <SidebarOption icon="fa-trash" text="Hapus semua data" onClick={toggleDelete} />
         </ul>
       </div>
