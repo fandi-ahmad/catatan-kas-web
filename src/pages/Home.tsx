@@ -39,8 +39,10 @@ const Home = () => {
   const [isValidDateCash, setIsValidDateCash] = useState<boolean>(false)
 
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState<boolean>(false)
+  const [typeOfModal, setTypeOfModal] = useState<'add' | 'edit' | ''>('')
 
   const openModal = (type: 'income' | 'spending', text: string) => {
+    setTypeOfModal('add')
     setTypeCash(type)
     setTextHeadModal(text)
     setModalOpen(true);
@@ -214,6 +216,62 @@ const Home = () => {
     }
   }
 
+  const openModalEdit = (data: dataCashType) => {
+    setTypeOfModal('edit')
+    setModalOpen(true);
+    setIsValidNoteCash(false)
+    setIsValidAmountCash(false)
+    setIsValidDateCash(false)
+    const amountString = data.amount.toLocaleString();
+    const [day, month, year] = data.created_at.split('/');
+    const formattedDate = `${year}-${month}-${day}`;
+    
+    setIdSelected(data.id)
+    setNoteCash(data.notes)
+    setAmountCash(amountString)
+    setDateCash(formattedDate)
+    setTypeCash(data.type)
+
+    setTextHeadModal(data.type === 'income' ? 'Pemasukan' : 'Pengeluaran')
+  }
+
+  const handleUpdateButton = () => {
+    const unformattedAmount = amountCash.replace(/,/g, '');
+    const numericAmount = Number(unformattedAmount)
+    const trimmedNote = noteCash.trim()     /* <-- check space */
+
+    !trimmedNote ? setIsValidNoteCash(true) : setIsValidNoteCash(false)
+    !numericAmount ? setIsValidAmountCash(true) : setIsValidAmountCash(false)
+    !dateCash ? setIsValidDateCash(true) : setIsValidDateCash(false)
+
+    if (trimmedNote && numericAmount > 0 && dateCash) {
+      const data = localStorage.getItem('dataCash')
+      if (data) {
+        const dataCash = JSON.parse(data)
+        const index = dataCash.findIndex((item: dataCashType) => item.id === idselected);
+  
+        const dataToSave = {
+          id: idselected,
+          notes: noteCash,
+          amount: numericAmount,
+          type: typeCash,
+          created_at: formatDate(dateCash)
+        }
+  
+        if (index !== -1) {
+          // Perbarui objek pada index yang ditemukan
+          dataCash[index] = { ...dataCash[index], ...dataToSave };
+          // Simpan array yang telah diperbarui kembali ke localStorage
+          localStorage.setItem('dataCash', JSON.stringify(dataCash));
+        }
+
+        getDataInConditionFilter()
+        setModalOpen(false)
+      }
+    }
+
+  }
+
   useEffect(() => {
     currentTime()
     getAllDataByCurrentMonth()
@@ -279,9 +337,17 @@ const Home = () => {
             amount={data.amount}
             type_cash={data.type}
             created_at={data.created_at}
+            handleEdit={() => openModalEdit(data)}
             handleDelete={() => confirmDelete(data.id)}
           />
         )): null}
+      </div>
+
+      <div className="text-center mt-12 mb-4">
+        <span>Dibuat oleh </span>
+        <a href="https://www.linkedin.com/in/fandijsx/" target="_blank" className="text-blue-500 dark:text-blue-400 font-medium hover:underline">
+          Fandi Ahmad
+        </a>
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
@@ -299,7 +365,10 @@ const Home = () => {
 
         <div className="flex justify-between mt-6">
           <BaseButton color="slate" text="Kembali" onClick={closeModal} />
-          <BaseButton color="green" text="Simpan" onClick={handleSaveButton} />
+          { typeOfModal === 'add'
+            ? <BaseButton color="green" text="Simpan" onClick={handleSaveButton} />
+            : <BaseButton color="green" text="Perbarui" onClick={handleUpdateButton} />
+          }
         </div>
       </Modal>
 
