@@ -9,11 +9,12 @@ interface InputProps {
   icon?: string | React.ReactNode
   isError?: boolean
   inputMode?: 'text' | 'numeric' | 'decimal' | 'email' | 'tel'
+  className?: string
 }
 
-const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, icon, isError, inputMode }) => {
+const TextInput: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, icon, isError, inputMode, className }) => {
   return (
-    <div className="mb-4">
+    <div className={`mb-4 ${className}`}>
       <label className="block mb-1">{label}</label>
 
       <div className='flex flex-row items-stretch '>
