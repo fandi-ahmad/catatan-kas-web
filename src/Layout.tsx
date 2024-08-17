@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
+import Feedback from './components/Feedback';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ const Layout: React.FC<LayoutProps> = ({children}) => {
         <div>
           {children}
         </div>
+        <Feedback/>
       </div>
     </div>
   )
