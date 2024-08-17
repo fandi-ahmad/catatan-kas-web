@@ -1,18 +1,15 @@
+import { useEffect, useState } from "react"
 import BaseButton from "../components/Button/BaseButton"
+import ButtonOption from "../components/Button/ButtonOption"
 import CardData from "../components/Cards/CardData"
+import CardEmptyData from "../components/Cards/CardEmptyData"
 import TextInput from "../components/Inputs/TextInput"
 import Modal from "../components/Modal"
-import { useEffect, useState } from "react"
-import { cashFormated, generateUniqueId } from "../function"
-import getDataCashByType from "../function/dataCash/getDataCashByType"
-import getDataCash from "../function/dataCash/getDataCash"
+import { cashFormated, generateUniqueId, limitText } from "../function"
+import { getDataCash, getDataCashByMonth, getDataCashByMonthType, getDataCashByType } from "../function/dataCash/read"
+import { CreateDataCash, DeleteDataCash, UpdateDataCash } from "../function/dataCash/crud"
+import { getCurrentDate, getCurrentMonth, getCurrentYear } from "../function/date"
 import { dataCashType } from "../interface"
-import getCurrentYear from "../function/date/getCurrentYear"
-import getCurrentMonth from "../function/date/getCurrentMonth"
-import ButtonOption from "../components/Button/ButtonOption"
-import getDataCashByMonth from "../function/dataCash/getDataCashByMonth"
-import getDataCashByMonthType from "../function/dataCash/getDataCashByMonthType"
-import CardEmptyData from "../components/Cards/CardEmptyData"
 
 const Home = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -68,14 +65,6 @@ const Home = () => {
     setModalMonthOpen(false)
   }
 
-  const getCurrentDate = (): string => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const currentTime = () => {
     setFilterMonth(getCurrentMonth())
     setFilterYear(getCurrentYear())
@@ -85,42 +74,6 @@ const Home = () => {
     const [year, month, day] = date.split('-');
     return `${day}/${month}/${year}`;
   };
-
-  const handleSaveButton = () => {
-    const unformattedAmount = amountCash.replace(/,/g, '');
-    const numericAmount = Number(unformattedAmount)
-    const trimmedNote = noteCash.trim()     /* <-- check space */
-
-    !trimmedNote ? setIsValidNoteCash(true) : setIsValidNoteCash(false)
-    !numericAmount ? setIsValidAmountCash(true) : setIsValidAmountCash(false)
-    !dateCash ? setIsValidDateCash(true) : setIsValidDateCash(false)
-
-    if (trimmedNote && numericAmount > 0 && dateCash) {
-      const dataToSave = {
-        id: generateUniqueId(),
-        notes: noteCash,
-        amount: numericAmount,
-        type: typeCash,
-        created_at: formatDate(dateCash)
-      }
-      
-      const data = localStorage.getItem('dataCash')
-      if (data) {
-        // sudah ada data, ambil dan tambahkan data yang baru
-        let dataCash = JSON.parse(data)
-        dataCash.unshift(dataToSave)
-        localStorage.setItem('dataCash', JSON.stringify(dataCash))
-      } else {
-        // belum ada data, tambah data untuk pertama kali
-        let data = []
-        data.unshift(dataToSave)
-        localStorage.setItem('dataCash', JSON.stringify(data))
-      }
-  
-      closeModal()
-      getDataInConditionFilter()
-    }
-  }
 
   const getAllDataByCurrentMonth = () => {
     const currentMonth = getCurrentMonth()
@@ -194,6 +147,41 @@ const Home = () => {
 
   // ====== part function for get data end ======
 
+  const inputValidation = () => {
+    const unformattedAmount = amountCash.replace(/,/g, ''); /* <-- remove "," in amount  */
+    const numericAmount = Number(unformattedAmount)         /* <-- change string to number  */
+    const trimmedNote = noteCash.trim()                     /* <-- check space */
+
+    !trimmedNote ? setIsValidNoteCash(true) : setIsValidNoteCash(false)
+    !numericAmount ? setIsValidAmountCash(true) : setIsValidAmountCash(false)
+    !dateCash ? setIsValidDateCash(true) : setIsValidDateCash(false)
+
+    return {
+      isValid: trimmedNote && numericAmount > 0 && dateCash ? true : false,
+      amount: numericAmount
+    }
+  }
+
+  const handleSaveButton = () => {
+    const result = inputValidation()
+
+    if (result.isValid) {
+      const dataToSave: dataCashType = {
+        id: generateUniqueId(),
+        notes: noteCash,
+        amount: result.amount,
+        type: typeCash ? typeCash : 'income',
+        created_at: formatDate(dateCash)
+      }
+      
+      // save data to local storage
+      CreateDataCash(dataToSave)
+  
+      closeModal()
+      getDataInConditionFilter()
+    }
+  }
+
   const [idselected, setIdSelected] = useState<string>('')
 
   const confirmDelete = (id: string) => {
@@ -202,19 +190,11 @@ const Home = () => {
   }
 
   const deleteDataCashById = () => {
-    const data = localStorage.getItem('dataCash')
-    if (data) {
-      const allData = JSON.parse(data)
+    // delete data cash by id
+    DeleteDataCash(idselected)
 
-      // Filter out the object with the matching id
-      const updatedData = allData.filter((item: { id: string }) => item.id !== idselected);
-
-      // Simpan kembali array yang sudah diperbarui ke localStorage
-      localStorage.setItem('dataCash', JSON.stringify(updatedData));
-      
-      getDataInConditionFilter()
-      setIsModalDeleteOpen(false);
-    }
+    getDataInConditionFilter()
+    setIsModalDeleteOpen(false);
   }
 
   const openModalEdit = (data: dataCashType) => {
@@ -237,40 +217,23 @@ const Home = () => {
   }
 
   const handleUpdateButton = () => {
-    const unformattedAmount = amountCash.replace(/,/g, '');
-    const numericAmount = Number(unformattedAmount)
-    const trimmedNote = noteCash.trim()     /* <-- check space */
+    const result = inputValidation()
 
-    !trimmedNote ? setIsValidNoteCash(true) : setIsValidNoteCash(false)
-    !numericAmount ? setIsValidAmountCash(true) : setIsValidAmountCash(false)
-    !dateCash ? setIsValidDateCash(true) : setIsValidDateCash(false)
-
-    if (trimmedNote && numericAmount > 0 && dateCash) {
-      const data = localStorage.getItem('dataCash')
-      if (data) {
-        const dataCash = JSON.parse(data)
-        const index = dataCash.findIndex((item: dataCashType) => item.id === idselected);
-  
-        const dataToSave = {
-          id: idselected,
-          notes: noteCash,
-          amount: numericAmount,
-          type: typeCash,
-          created_at: formatDate(dateCash)
-        }
-  
-        if (index !== -1) {
-          // Perbarui objek pada index yang ditemukan
-          dataCash[index] = { ...dataCash[index], ...dataToSave };
-          // Simpan array yang telah diperbarui kembali ke localStorage
-          localStorage.setItem('dataCash', JSON.stringify(dataCash));
-        }
-
-        getDataInConditionFilter()
-        setModalOpen(false)
+    if (result.isValid) {
+      const dataToSave: dataCashType = {
+        id: idselected,
+        notes: noteCash,
+        amount: result.amount,
+        type: typeCash ? typeCash : 'income',
+        created_at: formatDate(dateCash)
       }
-    }
 
+      // update data cash by id selected
+      UpdateDataCash(dataToSave, idselected)
+
+      getDataInConditionFilter()
+      setModalOpen(false)
+    }
   }
 
   useEffect(() => {
@@ -334,7 +297,7 @@ const Home = () => {
         {allDataCash && allDataCash.length > 0 ? allDataCash.map((data: dataCashType) => (
           <CardData
             key={data.id}
-            note={data.notes}
+            note={limitText(35, data.notes)}
             amount={data.amount}
             type_cash={data.type}
             created_at={data.created_at}

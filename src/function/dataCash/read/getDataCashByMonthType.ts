@@ -1,6 +1,6 @@
-import { dataCashFilterType } from "../../interface";
-import filterByMonthYear from "./components/filterByMonthYear";
-import getTotalAmountCash from "./components/getTotalAmountCash";
+import { dataCashFilterType } from "../../../interface";
+import filterByMonthYear from "../components/filterByMonthYear";
+import getTotalAmountCash from "../components/getTotalAmountCash";
 
 const getDataCashByMonthType = (month: number, year: number, typeCash: 'income' | 'spending' | '') => {
   const data = localStorage.getItem('dataCash')

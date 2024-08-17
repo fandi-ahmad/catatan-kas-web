@@ -1,5 +1,5 @@
-import { dataCashType, dataCashFilterType } from "../../interface"
-import getTotalAmountCash from "./components/getTotalAmountCash"
+import { dataCashType, dataCashFilterType } from "../../../interface"
+import getTotalAmountCash from "../components/getTotalAmountCash"
 
 const getDataCashByType = (type: 'income' | 'spending' | '') => {
   const data = localStorage.getItem('dataCash')
