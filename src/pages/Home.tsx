@@ -12,6 +12,7 @@ import getCurrentMonth from "../function/date/getCurrentMonth"
 import ButtonOption from "../components/Button/ButtonOption"
 import getDataCashByMonth from "../function/dataCash/getDataCashByMonth"
 import getDataCashByMonthType from "../function/dataCash/getDataCashByMonthType"
+import CardEmptyData from "../components/Cards/CardEmptyData"
 
 const Home = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -330,7 +331,7 @@ const Home = () => {
       : null}
 
       <div className="mt-4">
-        {allDataCash ? allDataCash.map((data: dataCashType) => (
+        {allDataCash && allDataCash.length > 0 ? allDataCash.map((data: dataCashType) => (
           <CardData
             key={data.id}
             note={data.notes}
@@ -340,10 +341,10 @@ const Home = () => {
             handleEdit={() => openModalEdit(data)}
             handleDelete={() => confirmDelete(data.id)}
           />
-        )): null}
+        )): <CardEmptyData/>}
       </div>
 
-      <div className="text-center mt-12 mb-4">
+      <div className="text-center mt-12 mb-4 text-sm">
         <span>Dibuat oleh </span>
         <a href="https://www.linkedin.com/in/fandijsx/" target="_blank" className="text-blue-500 dark:text-blue-400 font-medium hover:underline">
           Fandi Ahmad

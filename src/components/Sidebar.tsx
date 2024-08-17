@@ -76,7 +76,7 @@ const Sidebar = () => {
 
       {/* Overlay untuk menutup sidebar jika diklik di luar sidebar */}
       {isOpenSidebar && (
-        <div onClick={() => setIsOpenSidebar(!isOpenSidebar)} className="fixed inset-0 bg-black opacity-50"></div>
+        <div onClick={() => setIsOpenSidebar(!isOpenSidebar)} className="fixed inset-0 z-[31] bg-black opacity-50"></div>
       )}
 
       <Modal isOpen={isOpenModalDelete} onClose={toggleDelete}>

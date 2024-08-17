@@ -45,7 +45,10 @@ const Header = () => {
           <button className="text-lg" onClick={() => setIsOpenSidebar(!isOpenSidebar)}>
             <i className="fa-solid fa-bars"></i>
           </button>
-          <a className="flex items-center font-bold text-sm sm:text-base ms-4">
+          <div>
+            <img src="/catatan-kas-logo.webp" alt="logo" className="ms-4 w-5 sm:w-6" />
+          </div>
+          <a className="flex items-center font-bold text-sm sm:text-base ms-2">
             Catatan Kas
           </a>
         </div>
