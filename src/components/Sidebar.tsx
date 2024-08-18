@@ -8,10 +8,12 @@ import * as XLSX from 'xlsx';
 
 const Sidebar = () => {
   const [isOpenSidebar, setIsOpenSidebar] = useGlobalState('isOpenSidebar')
-  const [isOpenModalDelete, setIsOpenModalDelete] = useState<boolean>(false)
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false)
+  const [modalType, setModalType] = useState<'delete' | 'export'>('delete')
 
-  const toggleDelete = () => {
-    setIsOpenModalDelete(!isOpenModalDelete)
+  const openModal = (type: 'delete' | 'export') => {
+    setIsOpenModal(true)
+    setModalType(type)
   }
 
   const deleteAllData = () => {
@@ -41,6 +43,8 @@ const Sidebar = () => {
     
       // Buat file Excel dan trigger download
       XLSX.writeFile(workbook, 'data.xlsx');
+    } else {
+      openModal('export')
     }
   }
 
@@ -70,7 +74,7 @@ const Sidebar = () => {
           
           <hr className="my-4" />
           <SidebarOption icon="fa-file-export" text="Ekspor data" onClick={exportToExcel} />
-          <SidebarOption icon="fa-trash" text="Hapus semua data" onClick={toggleDelete} />
+          <SidebarOption icon="fa-trash" text="Hapus semua data" onClick={() => openModal('delete')} />
         </ul>
       </div>
 
@@ -79,16 +83,27 @@ const Sidebar = () => {
         <div onClick={() => setIsOpenSidebar(!isOpenSidebar)} className="fixed inset-0 z-[31] bg-black opacity-50"></div>
       )}
 
-      <Modal isOpen={isOpenModalDelete} onClose={toggleDelete}>
-        <div className="w-20 h-20 rounded-full border-4 border-red-500 flex justify-center items-center text-5xl text-red-500 mx-auto">
-          <i className="fa-solid fa-exclamation"></i>
-        </div>
-        <h2 className="font-medium mx-4 mt-4 text-center">Yakin ingin menghapus semua data kas?</h2>
+      <Modal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)}>
+        {modalType === 'delete' ? 
+          <>
+            <div className="w-20 h-20 rounded-full border-4 border-red-500 flex justify-center items-center text-5xl text-red-500 mx-auto">
+              <i className="fa-solid fa-exclamation"></i>
+            </div>
+            <h2 className="font-medium mx-4 mt-4 text-center">Yakin ingin menghapus semua data kas?</h2>
 
-        <div className="flex justify-center mt-4 text-sm">
-          <BaseButton color="slate" text="Batal" onClick={toggleDelete} className="me-4" />
-          <BaseButton color="red" text="Ya, hapus" onClick={deleteAllData} />
-        </div>
+            <div className="flex justify-center mt-4 text-sm">
+              <BaseButton color="slate" text="Batal" onClick={() => setIsOpenModal(false)} className="me-4" />
+              <BaseButton color="red" text="Ya, hapus" onClick={deleteAllData} />
+            </div>
+          </>
+        :
+          <>
+            <h2 className="mx-4 mt-4 text-center text-lg">Data kas belum ada!</h2>
+            <div className="flex justify-center mt-4 text-sm">
+              <BaseButton color="slate" text="Kembali" onClick={() => setIsOpenModal(false)} />
+            </div>
+          </>
+        }
       </Modal>
     </>
   )
