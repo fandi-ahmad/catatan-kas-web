@@ -31,7 +31,9 @@ const Sidebar = () => {
 
   const exportToExcel = () => {
     const data = localStorage.getItem('dataCash')
-    if (data) {
+    
+    // 2 = []
+    if (data && data.length > 2) {
       const dataCash = JSON.parse(data)
     
       // Buat worksheet dari JSON data
