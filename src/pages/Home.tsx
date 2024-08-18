@@ -166,7 +166,7 @@ const Home = () => {
         notes: noteCash,
         amount: result.amount,
         type: typeCash ? typeCash : 'income',
-        created_at: formatDate(dateCash)
+        created_at: dateCash
       }
       
       // save data to local storage
@@ -199,13 +199,11 @@ const Home = () => {
     setIsValidAmountCash(false)
     setIsValidDateCash(false)
     const amountString = data.amount.toLocaleString();
-    const [day, month, year] = data.created_at.split('/');
-    const formattedDate = `${year}-${month}-${day}`;
     
     setIdSelected(data.id)
     setNoteCash(data.notes)
     setAmountCash(amountString)
-    setDateCash(formattedDate)
+    setDateCash(data.created_at)
     setTypeCash(data.type)
 
     setTextHeadModal(data.type === 'income' ? 'Pemasukan' : 'Pengeluaran')
@@ -220,7 +218,7 @@ const Home = () => {
         notes: noteCash,
         amount: result.amount,
         type: typeCash ? typeCash : 'income',
-        created_at: formatDate(dateCash)
+        created_at: dateCash
       }
 
       // update data cash by id selected
@@ -295,7 +293,7 @@ const Home = () => {
             note={limitText(35, data.notes)}
             amount={data.amount}
             type_cash={data.type}
-            created_at={data.created_at}
+            created_at={formatDate(data.created_at)}
             handleEdit={() => openModalEdit(data)}
             handleDelete={() => confirmDelete(data.id)}
           />
