@@ -56,7 +56,7 @@ const Sidebar = () => {
       const driverObj = driver({
         showProgress: true,
         steps: [
-          { element: '#addDataContainer', popover: { title: 'Menambahkan data kas', description: 'pilih salah satu ingin menambahkan jumlah pemasukan atau pengeluaran.' } },
+          { element: '#addDataContainer', popover: { title: 'Menambahkan data kas', description: 'Pilih salah satu untuk menambahkan jumlah pemasukan atau pengeluaran.' } },
           { element: '#filterButton', popover: { title: 'Filter', description: 'Untuk menampilkan data kas berdasarkan pemasukan, pengeluaran dan bulan yang dapat disesuaikan.' } },
           { element: '#actionDataButton', popover: { title: 'Aksi', description: 'Untuk memperbarui atau mengapus data kas' } },
           { element: '#feedbackButton', popover: { title: 'Pesan', description: 'Kirim pesan jika kamu punya masukan atau mau melaporkan masalah saat menggunakan aplikasi web ini 😊' } },
