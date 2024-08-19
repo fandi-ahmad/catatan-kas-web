@@ -249,12 +249,12 @@ const Home = () => {
       </div>
 
       <div className="mt-4 flex justify-between items-end">
-        <div>
+        <div id="addDataContainer">
           <BaseButton color="green" text="Pemasukan" icon="fa-plus" textSize="text-xs sm:text-sm" className="me-2" onClick={() => openModal('income', 'pemasukan')} />
           <BaseButton color="red" text="Pengeluaran" icon="fa-plus" textSize="text-xs sm:text-sm" onClick={() => openModal('spending', 'pengeluaran')} />
         </div>
 
-        <button onClick={() => setIsOpenDropdownFilter(!isOpenDropdownFilter)} className="text-xs sm:text-sm bg-slate-300 hover:bg-slate-200 dark:bg-slate-600 dark:hover:bg-slate-500 duration-150 rounded-md py-1 px-2">
+        <button id="filterButton" onClick={() => setIsOpenDropdownFilter(!isOpenDropdownFilter)} className="text-xs sm:text-sm bg-slate-300 hover:bg-slate-200 dark:bg-slate-600 dark:hover:bg-slate-500 duration-150 rounded-md py-1 px-2">
           <span>Filter</span>
           <i className="fa-solid fa-filter ms-2"></i>
         </button>

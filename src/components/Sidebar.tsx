@@ -5,6 +5,7 @@ import BaseButton from "./Button/BaseButton";
 import SidebarOption from "./Options/SidebarOption";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
+import { driver } from "driver.js";
 
 const Sidebar = () => {
   const [isOpenSidebar, setIsOpenSidebar] = useGlobalState('isOpenSidebar')
@@ -50,6 +51,21 @@ const Sidebar = () => {
     }
   }
 
+  const openGuide = () => {
+    setIsOpenSidebar(false)
+    const driverObj = driver({
+      showProgress: true,
+      steps: [
+        { element: '#addDataContainer', popover: { title: 'Menambahkan data kas', description: 'pilih salah satu ingin menambahkan jumlah pemasukan atau pengeluaran.' } },
+        { element: '#filterButton', popover: { title: 'Filter', description: 'Untuk menampilkan data kas berdasarkan pemasukan, pengeluaran dan bulan yang dapat disesuaikan.' } },
+        { element: '#actionDataButton', popover: { title: 'Aksi', description: 'Untuk memperbarui atau mengapus data kas' } },
+        { element: '#feedbackButton', popover: { title: 'Pesan', description: 'Kirim pesan jika kamu punya masukan atau mau melaporkan masalah saat menggunakan aplikasi web ini 😊' } },
+      ]
+    });
+    
+    driverObj.drive();
+  }
+
   return (
     <>
       <div className={`${isOpenSidebar ? "translate-x-0" : "-translate-x-full"} fixed z-[32] top-0 left-0 h-full w-64 bg-white dark:bg-slate-800 p-4 transform transition-transform`}>
@@ -73,10 +89,12 @@ const Sidebar = () => {
             onClick={() => toPage('/about')}
             isActive={pathname == '/about' ? true : false}
           />
+
           
           <hr className="my-4" />
           <SidebarOption icon="fa-file-export" text="Ekspor data" onClick={exportToExcel} />
           <SidebarOption icon="fa-trash" text="Hapus semua data" onClick={() => openModal('delete')} />
+          <SidebarOption icon="fa-circle-question" text="Panduan" onClick={openGuide} />
         </ul>
       </div>
 
