@@ -8,7 +8,7 @@ import Modal from "../components/Modal"
 import { cashFormated, generateUniqueId, limitText } from "../function"
 import { getDataCash, getDataCashByMonth, getDataCashByMonthType, getDataCashByType } from "../function/dataCash/read"
 import { CreateDataCash, DeleteDataCash, UpdateDataCash } from "../function/dataCash/crud"
-import { formatDate, getCurrentDate, getCurrentMonth, getCurrentYear } from "../function/date"
+import { formatDate, getCurrentDate, getCurrentMonth, getCurrentYear, getMonthName } from "../function/date"
 import { dataCashType } from "../interface"
 
 const Home = () => {
@@ -229,6 +229,9 @@ const Home = () => {
     }
   }
 
+  // untuk membatasi data berdasarkan bulan
+  let lastMonth: string | null = null
+
   useEffect(() => {
     currentTime()
     getAllDataByCurrentMonth()
@@ -287,17 +290,33 @@ const Home = () => {
       : null}
 
       <div className="mt-4">
-        {allDataCash && allDataCash.length > 0 ? allDataCash.map((data: dataCashType) => (
-          <CardData
-            key={data.id}
-            note={limitText(35, data.notes)}
-            amount={data.amount}
-            type_cash={data.type}
-            created_at={formatDate(data.created_at)}
-            handleEdit={() => openModalEdit(data)}
-            handleDelete={() => confirmDelete(data.id)}
-          />
-        )): <CardEmptyData/>}
+        { allDataCash && allDataCash.length > 0 ? allDataCash.map((data: dataCashType, index: number) => {
+          const currentMonth = getMonthName(data.created_at);
+          const showMonthHeader = currentMonth.monthYear !== lastMonth;
+          lastMonth = currentMonth.monthYear; // Update bulan terakhir setelah pengecekan
+
+          return (
+            <div key={data.id}>
+              {showMonthHeader && (
+                <div className="my-2">
+                  {index > 0 && <hr style={{borderWidth: '1.5px'}} className="mb-2 mt-6 rounded-full border-slate-400 dark:border-slate-500" />}
+                  <p className="flex items-end justify-between">
+                    <span>{currentMonth.month}</span>
+                    <span >{`${new Date(data.created_at).getFullYear()}`}</span>
+                  </p>
+                </div>
+              )}
+              <CardData
+                note={limitText(35, data.notes)}
+                amount={data.amount}
+                type_cash={data.type}
+                created_at={formatDate(data.created_at)}
+                handleEdit={() => openModalEdit(data)}
+                handleDelete={() => confirmDelete(data.id)}
+              />
+            </div>
+          );
+        }) : <CardEmptyData />}
       </div>
 
       <div className="text-center mt-12 mb-4 text-sm">
