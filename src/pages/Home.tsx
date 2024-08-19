@@ -348,8 +348,8 @@ const Home = () => {
         </div>
       </Modal>
 
-      <Modal isOpen={isModalMonthOpen} onClose={closeModalMonth}>
-        <div className="mx-20 text-lg">
+      <Modal isOpen={isModalMonthOpen}>
+        <div className="mx-20 mt-2 text-lg">
           <button onClick={() => setFilterYear(filterYear - 1)}>
             <i className="fa-solid fa-angle-left"></i>
           </button>
@@ -374,8 +374,7 @@ const Home = () => {
           <ButtonOption text="Des" isActive={filterMonth === 12 ? true : false} onClick={() => filterMonth === 12 ? setFilterMonth(0) : setFilterMonth(12)} />
         </div>
 
-        <div className="flex justify-between mt-8 text-sm">
-          <BaseButton color="slate" text="Kembali" onClick={closeModalMonth} />
+        <div className="flex justify-center mt-8 text-sm">
           <BaseButton color="green" text="Sesuaikan" onClick={handleFilterByMonthButton} />
         </div>
       </Modal>
