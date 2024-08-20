@@ -8,7 +8,7 @@ import Modal from "../components/Modal"
 import { cashFormated, generateUniqueId, limitText } from "../function"
 import { getDataCash, getDataCashByMonth, getDataCashByMonthType, getDataCashByType } from "../function/dataCash/read"
 import { CreateDataCash, DeleteDataCash, UpdateDataCash } from "../function/dataCash/crud"
-import { getCurrentDate, getCurrentMonth, getCurrentYear } from "../function/date"
+import { formatDate, getCurrentDate, getCurrentMonth, getCurrentYear, getMonthName } from "../function/date"
 import { dataCashType } from "../interface"
 
 const Home = () => {
@@ -69,11 +69,6 @@ const Home = () => {
     setFilterMonth(getCurrentMonth())
     setFilterYear(getCurrentYear())
   }
-
-  const formatDate = (date: string) => {
-    const [year, month, day] = date.split('-');
-    return `${day}/${month}/${year}`;
-  };
 
   const getAllDataByCurrentMonth = () => {
     const currentMonth = getCurrentMonth()
@@ -171,7 +166,7 @@ const Home = () => {
         notes: noteCash,
         amount: result.amount,
         type: typeCash ? typeCash : 'income',
-        created_at: formatDate(dateCash)
+        created_at: dateCash
       }
       
       // save data to local storage
@@ -204,13 +199,11 @@ const Home = () => {
     setIsValidAmountCash(false)
     setIsValidDateCash(false)
     const amountString = data.amount.toLocaleString();
-    const [day, month, year] = data.created_at.split('/');
-    const formattedDate = `${year}-${month}-${day}`;
     
     setIdSelected(data.id)
     setNoteCash(data.notes)
     setAmountCash(amountString)
-    setDateCash(formattedDate)
+    setDateCash(data.created_at)
     setTypeCash(data.type)
 
     setTextHeadModal(data.type === 'income' ? 'Pemasukan' : 'Pengeluaran')
@@ -225,7 +218,7 @@ const Home = () => {
         notes: noteCash,
         amount: result.amount,
         type: typeCash ? typeCash : 'income',
-        created_at: formatDate(dateCash)
+        created_at: dateCash
       }
 
       // update data cash by id selected
@@ -235,6 +228,9 @@ const Home = () => {
       setModalOpen(false)
     }
   }
+
+  // untuk membatasi data berdasarkan bulan
+  let lastMonth: string | null = null
 
   useEffect(() => {
     currentTime()
@@ -253,12 +249,12 @@ const Home = () => {
       </div>
 
       <div className="mt-4 flex justify-between items-end">
-        <div>
+        <div id="addDataContainer">
           <BaseButton color="green" text="Pemasukan" icon="fa-plus" textSize="text-xs sm:text-sm" className="me-2" onClick={() => openModal('income', 'pemasukan')} />
           <BaseButton color="red" text="Pengeluaran" icon="fa-plus" textSize="text-xs sm:text-sm" onClick={() => openModal('spending', 'pengeluaran')} />
         </div>
 
-        <button onClick={() => setIsOpenDropdownFilter(!isOpenDropdownFilter)} className="text-xs sm:text-sm bg-slate-300 hover:bg-slate-200 dark:bg-slate-600 dark:hover:bg-slate-500 duration-150 rounded-md py-1 px-2">
+        <button id="filterButton" onClick={() => setIsOpenDropdownFilter(!isOpenDropdownFilter)} className="text-xs sm:text-sm bg-slate-300 hover:bg-slate-200 dark:bg-slate-600 dark:hover:bg-slate-500 duration-150 rounded-md py-1 px-2">
           <span>Filter</span>
           <i className="fa-solid fa-filter ms-2"></i>
         </button>
@@ -294,17 +290,33 @@ const Home = () => {
       : null}
 
       <div className="mt-4">
-        {allDataCash && allDataCash.length > 0 ? allDataCash.map((data: dataCashType) => (
-          <CardData
-            key={data.id}
-            note={limitText(35, data.notes)}
-            amount={data.amount}
-            type_cash={data.type}
-            created_at={data.created_at}
-            handleEdit={() => openModalEdit(data)}
-            handleDelete={() => confirmDelete(data.id)}
-          />
-        )): <CardEmptyData/>}
+        { allDataCash && allDataCash.length > 0 ? allDataCash.map((data: dataCashType, index: number) => {
+          const currentMonth = getMonthName(data.created_at);
+          const showMonthHeader = currentMonth.monthYear !== lastMonth;
+          lastMonth = currentMonth.monthYear; // Update bulan terakhir setelah pengecekan
+
+          return (
+            <div key={data.id}>
+              {showMonthHeader && (
+                <div className="my-2">
+                  {index > 0 && <hr style={{borderWidth: '1.5px'}} className="mb-2 mt-6 rounded-full border-slate-400 dark:border-slate-500" />}
+                  <p className="flex items-end justify-between">
+                    <span>{currentMonth.month}</span>
+                    <span >{`${new Date(data.created_at).getFullYear()}`}</span>
+                  </p>
+                </div>
+              )}
+              <CardData
+                note={limitText(35, data.notes)}
+                amount={data.amount}
+                type_cash={data.type}
+                created_at={formatDate(data.created_at)}
+                handleEdit={() => openModalEdit(data)}
+                handleDelete={() => confirmDelete(data.id)}
+              />
+            </div>
+          );
+        }) : <CardEmptyData />}
       </div>
 
       <div className="text-center mt-12 mb-4 text-sm">
@@ -336,8 +348,8 @@ const Home = () => {
         </div>
       </Modal>
 
-      <Modal isOpen={isModalMonthOpen} onClose={closeModalMonth}>
-        <div className="mx-20 text-lg">
+      <Modal isOpen={isModalMonthOpen}>
+        <div className="mx-20 mt-2 text-lg">
           <button onClick={() => setFilterYear(filterYear - 1)}>
             <i className="fa-solid fa-angle-left"></i>
           </button>
@@ -362,8 +374,7 @@ const Home = () => {
           <ButtonOption text="Des" isActive={filterMonth === 12 ? true : false} onClick={() => filterMonth === 12 ? setFilterMonth(0) : setFilterMonth(12)} />
         </div>
 
-        <div className="flex justify-between mt-8 text-sm">
-          <BaseButton color="slate" text="Kembali" onClick={closeModalMonth} />
+        <div className="flex justify-center mt-8 text-sm">
           <BaseButton color="green" text="Sesuaikan" onClick={handleFilterByMonthButton} />
         </div>
       </Modal>
