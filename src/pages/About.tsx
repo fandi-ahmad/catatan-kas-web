@@ -2,7 +2,7 @@
 const About = () => {
   return (
     <div className="px-4 sm:px-6 py-4">
-      <h1 className="text-xl font-medium pb-4">Catatan Kas V 0.1.0 Beta</h1>
+      <h1 className="text-xl font-medium pb-4">Catatan Kas V 0.2.0 Beta</h1>
       <p>Aplikasi ini dibuat untuk mencatat kas masuk dan keluar.</p>
       <p>
         <span>Dibuat oleh </span>
